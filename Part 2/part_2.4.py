@@ -12,7 +12,7 @@ def is_consistent_with_window(fen: str, sense_window: str):
             if board.piece_at(square_location) is not None:
                 return False  # Return False if there is a piece on the square
         else:  # If the piece is known
-            if board.piece_at(square_location) != square_info[1]:
+            if board.piece_at(square_location).symbol() != square_info[1]:
                 return False  # Return False if the piece on the square does not match the observed piece
 
     return True  # Return True if all squares are consistent with the observation
