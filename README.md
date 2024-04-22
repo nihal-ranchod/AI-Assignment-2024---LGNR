@@ -4,4 +4,4 @@
 - Lisa Godiwn
 - Nihal Ranchod
 ### Structure
-Reconnaissance Blind Chess Overview: <a href="RBC_Overview.pdf"><RBC Overview</a>
+Reconnaissance Blind Chess Overview: <a href="RBC_Overview.pdf">RBC Overview</a>
