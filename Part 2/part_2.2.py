@@ -1,8 +1,6 @@
 import chess
 from reconchess.utilities import without_opponent_pieces, is_illegal_castle
 
-# Possibly a castling mistake here
-
 def generate_possible_moves(board):
     possible_moves = ['0000'] # Initialise with null move
 
