@@ -5,7 +5,7 @@ def moves(board):
     moves = ['0000']
 
     for move in without_opponent_pieces(board).generate_castling_moves():
-        if not is_illegal_castle(board, move):
+        if not is_illegal_castle(board, move) and move not in board.legal_moves:
             # this would be a valid castling move in RBC
             moves.append(move.uci())
 
