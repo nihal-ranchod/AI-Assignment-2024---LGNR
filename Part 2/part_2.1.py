@@ -9,6 +9,7 @@ def generate_possible_moves(board):
 
     # Adding all valid castling moves in RBC
     for move in without_opponent_pieces(board).generate_castling_moves():
+        # Check if the castling move is not illegal and not already in the list of legal moves
         if not is_illegal_castle(board, move) and move not in board.legal_moves:
             possible_moves.append(move.uci())
 
