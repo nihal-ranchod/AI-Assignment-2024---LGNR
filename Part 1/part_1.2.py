@@ -6,8 +6,8 @@ def main():
     board = chess.Board(fen_input_str)
 
     move = input()
-    Nf3 = chess.Move.from_uci(move)
-    board.push(Nf3)
+    make_move = chess.Move.from_uci(move) # Parsing UCI string
+    board.push(make_move) # Make the move
 
     print(board.fen())
 
