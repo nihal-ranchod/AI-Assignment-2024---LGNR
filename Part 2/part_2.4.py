@@ -1,8 +1,7 @@
 import chess
 
-# Function to check if a state is consistent with the window observation
 def is_consistent_with_window(fen: str, sense_window: str):
-    board = chess.Board(fen)  # Initialize chess board with FEN string
+    board = chess.Board(fen)  
     squares = sense_window.split(";")  # Split the window description into individual squares
 
     for square_str in squares:
