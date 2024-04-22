@@ -3,3 +3,5 @@
 ### Members
 - Lisa Godiwn
 - Nihal Ranchod
+### Structure
+Reconnaissance Blind Chess Overview: <a href="RBC_Overview.pdf">< alt="RBC Overview"></a>
