@@ -5,7 +5,7 @@ from reconchess import *
 
 stockfish_path = 'stockfish/stockfish.exe'
 
-class BaselingAgent(Player):
+class TroutAgent(Player):
     def __init__(self):
         self.board = None
         self.color = None
