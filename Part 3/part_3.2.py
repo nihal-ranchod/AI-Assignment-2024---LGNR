@@ -5,21 +5,12 @@ import os
 
 STOCKFISH_ENV_VAR = 'STOCKFISH_EXECUTABLE'
 
-class TroutBot:
+class Agent:
     def __init__(self):
-        # Initialize variables
-        self.board = None
-        self.color = None
-        self.my_piece_captured_square = None
 
         # Initialize Stockfish engine
-        stockfish_path = os.environ.get(STOCKFISH_ENV_VAR, 'stockfish/stockfish.exe')
-        if not os.path.exists(stockfish_path):
-            raise ValueError('No stockfish executable found at "{}"'.format(stockfish_path))
+        stockfish_path = 'stockfish/stockfish.exe'
         self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path, setpgrp=True)
-
-        # Store squares occupied by own pieces
-        self.own_piece_squares = set()
 
     def handle_game_start(self, color: chess.Color, board: chess.Board, opponent_name: str):
         # Initialize variables and store own piece squares
@@ -39,7 +30,7 @@ class TroutBot:
 
 def compute_most_common_move(fen_strings):
     moves_count = collections.defaultdict(int)
-    bot = TroutBot()
+    bot = Agent()
 
     for fen_str in fen_strings:
         board = chess.Board(fen_str)
