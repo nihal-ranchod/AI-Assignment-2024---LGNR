@@ -5,7 +5,6 @@ import chess.engine
 
 class RandomSensing(Player):
     def __init__(self):
-        super().__init__()
         self.current_state = chess.Board()
         self.engine = chess.engine.SimpleEngine.popen_uci("stockfish/stockfish.exe")
 
