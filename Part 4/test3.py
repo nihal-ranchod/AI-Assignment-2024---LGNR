@@ -12,17 +12,6 @@ class BotOne(Player):
         self.my_piece_captured_square = None
         self.move_number = 0
 
-        # self.white_move = [chess.Move.from_uci("e2e4")]
-        # self.white_move.append(chess.Move.from_uci("d1h5"))
-        # self.white_move.append(chess.Move.from_uci("f1c4"))
-        # self.white_move.append(chess.Move.from_uci("h5f7"))
-        
-        # self.black_move = [chess.Move.from_uci("e7e5")]
-        # self.black_move.append(chess.Move.from_uci("d8h4"))
-        # self.black_move.append(chess.Move.from_uci("f8c5"))
-        # self.black_move.append(chess.Move.from_uci("h4f2"))
-        
-        
         self.white_move = [chess.Move.from_uci("b1c3")]
         self.white_move.append(chess.Move.from_uci("c3b5"))
         self.white_move.append(chess.Move.from_uci("b5d6"))
@@ -56,17 +45,33 @@ class BotOne(Player):
             self.board.remove_piece_at(capture_square)
 
     def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
-
-        # sense if out piece was captured
-        if self.my_piece_captured_square:
-            return self.my_piece_captured_square
-
-        # otherwise, random sense action
-        for square, piece in self.board.piece_map().items():
-            if piece.color == self.color:
-                sense_actions.remove(square)
+        opponent_piece_squares = [square for square, piece in self.board.piece_map().items() if piece.color == self.opponent_color]
+        
+        # Prioritize sensing opponent's pieces
+        for square in sense_actions:
+            if square in opponent_piece_squares:
+                return square
+        
+        # If no opponent's pieces are nearby, prioritize strategic squares based on predefined moves
+        if self.color == chess.WHITE:
+            for move in self.white_move:
+                if move.to_square in sense_actions:
+                    return move.to_square
+        else:
+            for move in self.black_move:
+                if move.to_square in sense_actions:
+                    return move.to_square
+        
+        # If no predefined moves apply, sense any remaining square randomly
         return random.choice(sense_actions)
-
+    
+    '''
+    In this implementation, we first identify squares containing opponent's pieces and prioritize sensing those squares.
+    If no opponent's pieces are nearby, we then check if there are any squares in the predefined moves (self.white_move 
+    or self.black_move) that can be sensed. If such squares exist, we prioritize sensing them. If none of the predefined
+    moves apply, we randomly choose a square to sense from the remaining available options.
+    '''
+    
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
         # add changes to board, if any
         for square, piece in sense_result:
@@ -98,26 +103,13 @@ class BotOne(Player):
                     return self.white_move[self.move_number - 1]
                 else:
                     self.move_number = 10
-                
-            # elif self.move_number == 4:
-                # print("Move 4")
-                # self.move_number += 1
-                # if(chess.Move.from_uci('c4f7') in move_actions):
-                    # move = chess.Move.from_uci('c4f7')
-                    # #self.board.push(move)
-                    # return move
-
-                # elif(chess.Move(chess.F7, chess.E8) in move_actions):
-                    # move = chess.Move.from_uci('f7e8')
-                    # #self.board.push(move)
-                    # return move
             else:
                 try:
                     self.board.turn = self.color
                     #self.board.clear_stack()
                     print(self.board) 
                     if(self.board.is_valid()):
-                        result = self.engine.play(self.board, chess.engine.Limit(time=0.5))
+                        result = self.engine.play(self.board, chess.engine.Limit(time=1))
                         print(result.move)
                         if result.move in move_actions:
                             return result.move
@@ -139,34 +131,21 @@ class BotOne(Player):
                     return self.black_move[self.move_number - 1]
                 else:
                     self.move_number = 10
-                    
-            # elif self.move_number == 4:
-                # print("Move 4")
-                # self.move_number += 1
-                
-                # if(chess.Move.from_uci('c5f2') in move_actions):
-                    # move = chess.Move.from_uci('c5f2')
-                    # #self.board.push(move)
-                    # return move
 
-                # elif(chess.Move.from_uci('f7e8') in move_actions):
-                    # move = chess.Move.from_uci('f7e8')
-                    # #self.board.push(move)
-                    # return move
             else:
                 self.move_number += 1
                 print(self.board)
                 try:
                     print("Board valid - ", self.board.is_valid())
                     if(self.board.is_valid()):
-                        result = self.engine.play(self.board, chess.engine.Limit(time=0.5))
+                        result = self.engine.play(self.board, chess.engine.Limit(time=1))
                         print(result)
                         if result.move in move_actions:
                             return result.move                        
                     
                     
                     return random.choice(move_actions + [None])
-        
+                    
                 except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
                     print('Engine bad state at "{}"'.format(self.board.fen()))
 
