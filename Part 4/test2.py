@@ -73,19 +73,22 @@ class BotOne(Player):
             self.board.set_piece_at(square, piece)
 
     def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
-        enemy_king_square = self.board.king(self.opponent_color)
+        enemy_king_square = self.board.king(self.opponent_color) # finds the square of the opponents king
         print("Enemy king square is", enemy_king_square)
-        if enemy_king_square != None:
-            # if there are any ally pieces that can take king, execute one of those moves
-            enemy_king_attackers = self.board.attackers(self.color, enemy_king_square)
-            if enemy_king_attackers:
-                print("Attacking enemy king")
-                attacker_square = enemy_king_attackers.pop()
-                #self.board.push(chess.Move(attacker_square, enemy_king_square))
-                return chess.Move(attacker_square, enemy_king_square)
+        if enemy_king_square != None: # Checks if the opponent's king is on the board
 
-        if self.color == chess.WHITE:
+            #----- if there are any ally pieces that can take king, execute one of those moves ------
+            enemy_king_attackers = self.board.attackers(self.color, enemy_king_square) # Finds all the pieces of the bot's colour that are attacking the oppponent's king
+            if enemy_king_attackers: # Checks if theres any attackers
+                print("Attacking enemy king")
+                attacker_square = enemy_king_attackers.pop() # Retrievs one of the squares from which the bot's pieces are attacking the opponent's king
+                #self.board.push(chess.Move(attacker_square, enemy_king_square))
+                return chess.Move(attacker_square, enemy_king_square) # Returns a move that captures the piece attacking the opponent's king
+
+        if self.color == chess.WHITE: # checks if it's playing as white/black and executes predefined moves stored in self.white_move or self.black_move
                 
+            # Stockfish Engine Analysis
+            # If no predefined moves are available or executed, but utilises Stockfish Engine to analyse board position and suggest a move    
             if self.move_number < len(self.white_move):
                 print(self.move_number)
                 self.move_number += 1
@@ -119,7 +122,8 @@ class BotOne(Player):
                         if result.move in move_actions:
                             return result.move
                     
-                    return random.choice(move_actions + [None])
+                    else:
+                        return random.choice(move_actions + [None])
                         
                 except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
                     print('Engine bad state at "{}"'.format(self.board.fen()))
@@ -160,24 +164,27 @@ class BotOne(Player):
                         if result.move in move_actions:
                             return result.move                        
                     
-                    move = random.choice(move_actions + [None])
-                    print(move)
-                        
+                    else:
+                        move = random.choice(move_actions + [None])
+                    
+                    print(move)    
                     return move
                 except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
                     print('Engine bad state at "{}"'.format(self.board.fen()))
-        return random.choice(move_actions + [None])
+
+        return random.choice(move_actions + [None]) # If Stockfish doesn't provide a valid move, bot chooses a random move from the list of legal moves (move_actions) or returns None if no legal moves are available.
 
     def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
-        if taken_move is not None:
-            print("In handle move result")
-            self.board.push(chess.Move.null())
-            self.board.push(taken_move)
+        if taken_move is not None: # Checks if a move was successfuly executed
+            print(f'In handle move result, taken move:{taken_move} was successuful')
+            self.board.push(chess.Move.null()) # Push a null move onto the stack to maintain game state consistency
+            self.board.push(taken_move) # If a move was executed, push move onto the board stack
         else:
-            if(requested_move != None):
-                self.board.push(chess.Move.null())
-                self.board.push(requested_move)
+            if(requested_move != None): # If the bot's requested move was not 'None'
+                self.board.push(chess.Move.null()) # Push a null move onto the board stack
+                self.board.push(requested_move) # Push requested move onto the board stack
+                
 
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
                         game_history: GameHistory):
