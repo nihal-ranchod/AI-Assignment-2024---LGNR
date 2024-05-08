@@ -1,11 +1,8 @@
-
 import random
 from reconchess import *
 import os
 import chess.engine
-import numpy as np
 
-STOCKFISH_ENV_VAR = 'stockfish/stockfish.exe'
 class BotOne(Player):
     def __init__(self):
         self.board = None
@@ -36,16 +33,9 @@ class BotOne(Player):
         self.black_move.append(chess.Move.from_uci("b4d3"))
         self.black_move.append(chess.Move.from_uci("d3e1"))
         
-        # check if stockfish environment variable exists
-        if STOCKFISH_ENV_VAR not in os.environ:
-            raise KeyError(
-                'Require an environment variable called "{}" pointing to the Stockfish executable'.format(
-                    STOCKFISH_ENV_VAR))
 
         # make sure there is actually a file
-        stockfish_path = os.environ[STOCKFISH_ENV_VAR]
-        if not os.path.exists(stockfish_path):
-            raise ValueError('No stockfish executable found at "{}"'.format(stockfish_path))
+        stockfish_path = 'stockfish/stockfish.exe'
 
         # initialize the stockfish engine
         self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
@@ -66,32 +56,15 @@ class BotOne(Player):
             self.board.remove_piece_at(capture_square)
 
     def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> Square:
-        # if our piece was just captured, sense where it was captured
+
+        # sense if out piece was captured
         if self.my_piece_captured_square:
             return self.my_piece_captured_square
 
-        # if we might capture a piece when we move, sense where the capture will occur
-        future_move = self.choose_move(move_actions, seconds_left)
-        if future_move is not None and self.board.piece_at(future_move.to_square) is not None:
-            return future_move.to_square
-
-        """sense in rows 3 and 4 of the opponent during the beginning of the game...?"""
-
-        # sense where we predict our opponent moved during their previous turn
-        if self.future_opponent_move is not None:
-            return self.future_opponent_move.to_square
-
-        # otherwise, just randomly choose a sense action, but don't sense on a square where our pieces are located
+        # otherwise, random sense action
         for square, piece in self.board.piece_map().items():
             if piece.color == self.color:
                 sense_actions.remove(square)
-        # don't sense on a square along the edge
-        edges = np.array([0, 1, 2, 3, 4, 5, 6, 7,
-                          8, 15, 16, 23, 24, 31, 32,
-                          39, 40, 47, 48, 55, 56, 57,
-                          58, 59, 60, 61, 62, 63])
-        sense_actions = np.setdiff1d(sense_actions, edges)
-        sense_actions = sense_actions.tolist()
         return random.choice(sense_actions)
 
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
@@ -205,6 +178,7 @@ class BotOne(Player):
             if(requested_move != None):
                 self.board.push(chess.Move.null())
                 self.board.push(requested_move)
+
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
                         game_history: GameHistory):
         self.engine.quit()
