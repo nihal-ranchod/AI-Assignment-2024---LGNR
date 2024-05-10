@@ -3,7 +3,7 @@ from reconchess import *
 import os
 import chess.engine
 
-class BotOne(Player):
+class ImprovedBot(Player):
     def __init__(self):
         self.board = None
         self.color = None
@@ -115,7 +115,7 @@ class BotOne(Player):
                             return result.move
                     
                     else:
-                        return random.choice(move_actions + [None])
+                        return random.choice(move_actions)
                         
                 except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
                     print('Engine bad state at "{}"'.format(self.board.fen()))
@@ -144,12 +144,13 @@ class BotOne(Player):
                             return result.move                        
                     
                     
-                    return random.choice(move_actions + [None])
+                    return random.choice(move_actions)
                     
                 except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
                     print('Engine bad state at "{}"'.format(self.board.fen()))
 
-        return random.choice(move_actions + [None]) # If Stockfish doesn't provide a valid move, bot chooses a random move from the list of legal moves (move_actions) or returns None if no legal moves are available.
+        return random.choice(move_actions) # If Stockfish doesn't provide a valid move, bot chooses a random move from the list of legal moves (move_actions) or returns None if no legal moves are available.
+        #check if move is in move_actions, if not then return null move
 
     def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
@@ -158,9 +159,9 @@ class BotOne(Player):
             self.board.push(chess.Move.null()) # Push a null move onto the stack to maintain game state consistency
             self.board.push(taken_move) # If a move was executed, push move onto the board stack
         else:
-            if(requested_move != None): # If the bot's requested move was not 'None'
-                self.board.push(chess.Move.null()) # Push a null move onto the board stack
-                self.board.push(requested_move) # Push requested move onto the board stack
+            # if(requested_move != None): # If the bot's requested move was not 'None'
+            self.board.push(chess.Move.null()) # Push a null move onto the board stack
+            self.board.push(chess.Move.null()) # Push requested move onto the board stack
                 
 
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
