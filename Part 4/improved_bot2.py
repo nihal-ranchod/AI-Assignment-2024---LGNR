@@ -62,7 +62,9 @@ class ImprovedBot(Player):
                     return move.to_square
         
         # If no predefined moves apply, sense any remaining square randomly
-        return random.choice(sense_actions)
+        # Choose a square to sense on the board, avoiding sqaures on the edges of the board
+        valid_squares = [sq for sq in sense_actions if 1 < sq < 56 and sq % 8 not in [0, 7]]
+        return random.choice(valid_squares) if valid_squares else None
     
     '''
     In this implementation, we first identify squares containing opponent's pieces and prioritize sensing those squares.
