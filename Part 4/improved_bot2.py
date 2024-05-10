@@ -1,6 +1,5 @@
 import random
 from reconchess import *
-import os
 import chess.engine
 
 class ImprovedBot(Player):
@@ -12,6 +11,7 @@ class ImprovedBot(Player):
         self.my_piece_captured_square = None
         self.move_number = 0
 
+        # Predefined moves for white and black
         self.white_move = [chess.Move.from_uci("b1c3")]
         self.white_move.append(chess.Move.from_uci("c3b5"))
         self.white_move.append(chess.Move.from_uci("b5d6"))
@@ -22,11 +22,10 @@ class ImprovedBot(Player):
         self.black_move.append(chess.Move.from_uci("b4d3"))
         self.black_move.append(chess.Move.from_uci("d3e1"))
         
-
-        # make sure there is actually a file
+        # Path to stockfish executable
         stockfish_path = 'stockfish/stockfish.exe'
 
-        # initialize the stockfish engine
+        # Initialize the stockfish engine
         self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
         
     def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
@@ -39,7 +38,7 @@ class ImprovedBot(Player):
             self.opponent_color = chess.WHITE
         
     def handle_opponent_move_result(self, captured_my_piece: bool, capture_square: Optional[Square]):
-        # if the opponent captured our piece, remove it from our board.
+        # If the opponent captured our piece, remove it from our board.
         self.my_piece_captured_square = capture_square
         if captured_my_piece:
             self.board.remove_piece_at(capture_square)
@@ -73,12 +72,12 @@ class ImprovedBot(Player):
     '''
     
     def handle_sense_result(self, sense_result: List[Tuple[Square, Optional[chess.Piece]]]):
-        # add changes to board, if any
+        # Add changes to board, if any
         for square, piece in sense_result:
             self.board.set_piece_at(square, piece)
 
     def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
-        enemy_king_square = self.board.king(self.opponent_color) # finds the square of the opponents king
+        enemy_king_square = self.board.king(self.opponent_color) # Finds the square of the opponents king
         print("Enemy king square is", enemy_king_square)
         if enemy_king_square != None: # Checks if the opponent's king is on the board
 
@@ -90,10 +89,8 @@ class ImprovedBot(Player):
                 #self.board.push(chess.Move(attacker_square, enemy_king_square))
                 return chess.Move(attacker_square, enemy_king_square) # Returns a move that captures the piece attacking the opponent's king
 
-        if self.color == chess.WHITE: # checks if it's playing as white/black and executes predefined moves stored in self.white_move or self.black_move
-                
-            # Stockfish Engine Analysis
-            # If no predefined moves are available or executed, but utilises Stockfish Engine to analyse board position and suggest a move    
+        if self.color == chess.WHITE: # checks if it's playing as white or black and executes predefined moves stored in self.white_move or self.black_move
+            # If no predefined moves are available or executed, bot utilises Stockfish Engine to analyse board position and suggest a move    
             if self.move_number < len(self.white_move):
                 print(self.move_number)
                 self.move_number += 1
@@ -104,16 +101,17 @@ class ImprovedBot(Player):
                 else:
                     self.move_number = 10
             else:
-                try:
+                # Stockfish Engine Analysis
+                try: 
                     self.board.turn = self.color
                     #self.board.clear_stack()
                     print(self.board) 
                     if(self.board.is_valid()):
                         result = self.engine.play(self.board, chess.engine.Limit(time=1))
                         print(result.move)
+                        # Check if move is in move_actions
                         if result.move in move_actions:
                             return result.move
-                    
                     else:
                         return random.choice(move_actions)
                         
@@ -123,7 +121,6 @@ class ImprovedBot(Player):
         else:
             if self.move_number < len(self.black_move):
                 print(self.board)
-                #print(self.move_number)
                 self.move_number += 1
                 print(self.black_move[self.move_number - 1])
                 #self.board.push(self.black_move[self.move_number - 1])
@@ -133,6 +130,7 @@ class ImprovedBot(Player):
                     self.move_number = 10
 
             else:
+                # Stockfish Engine Analysis
                 self.move_number += 1
                 print(self.board)
                 try:
@@ -140,17 +138,16 @@ class ImprovedBot(Player):
                     if(self.board.is_valid()):
                         result = self.engine.play(self.board, chess.engine.Limit(time=1))
                         print(result)
+                        # Check if move is in move_actions
                         if result.move in move_actions:
                             return result.move                        
-                    
                     
                     return random.choice(move_actions)
                     
                 except (chess.engine.EngineError, chess.engine.EngineTerminatedError) as e:
                     print('Engine bad state at "{}"'.format(self.board.fen()))
 
-        return random.choice(move_actions) # If Stockfish doesn't provide a valid move, bot chooses a random move from the list of legal moves (move_actions) or returns None if no legal moves are available.
-        #check if move is in move_actions, if not then return null move
+        return random.choice(move_actions) # If Stockfish doesn't provide a valid move, bot chooses a random move from the list of legal moves (move_actions) or returns None if no legal moves are available.        
 
     def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
                            captured_opponent_piece: bool, capture_square: Optional[Square]):
@@ -159,11 +156,9 @@ class ImprovedBot(Player):
             self.board.push(chess.Move.null()) # Push a null move onto the stack to maintain game state consistency
             self.board.push(taken_move) # If a move was executed, push move onto the board stack
         else:
-            # if(requested_move != None): # If the bot's requested move was not 'None'
             self.board.push(chess.Move.null()) # Push a null move onto the board stack
-            self.board.push(chess.Move.null()) # Push requested move onto the board stack
+            self.board.push(chess.Move.null()) 
                 
-
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
                         game_history: GameHistory):
         self.engine.quit()
