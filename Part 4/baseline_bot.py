@@ -5,8 +5,9 @@ import chess.engine
 
 class RandomSensing(Player):
     def __init__(self):
-        self.current_state = chess.Board() # Initialise current state of the game board
-        self.engine = chess.engine.SimpleEngine.popen_uci("stockfish/stockfish.exe") # Stockfish Connection
+        self.cuurrent_state = chess.Board() # Initialise the current state of the board
+        self.engine = chess.engine.SimpleEngine.popen_uci("stockfish/stockfish.exe") # Open Stockfish engine
+        self.possible_states = [self.cuurrent_state.copy()] # Store the possible states of the board
 
     def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):
         self.color = color
@@ -18,6 +19,9 @@ class RandomSensing(Player):
             # Check if opponent's turn to move before removing the piece
             if self.current_state.turn != self.color:
                 self.current_state.remove_piece_at(capture_square)
+        # Update possible states based on opponent's move
+        if self.current_state.move_stack:  # Check if move_stack is not empty
+            self.possible_states = [state for state in self.possible_states if state.is_capture(state.peek()) == captured_my_piece]
 
     def choose_sense(self, sense_actions: List[Square], move_actions: List[chess.Move], seconds_left: float) -> \
             Optional[Square]:
@@ -37,9 +41,9 @@ class RandomSensing(Player):
 
     def choose_move(self, move_actions: List[chess.Move], seconds_left: float) -> Optional[chess.Move]:
         time_limit = max(seconds_left / 10, 1)  # Calculate time limit for Stockfish
-        if len(self.current_state.move_stack) > 10000:
-            # If number of moves exceeds 10000, randomly remove moves to reduce the number to 10000
-            self.current_state.pop(random.randint(0, len(self.current_state.move_stack) - 1))
+        if len(self.possible_states) > 10000:
+            # If number of states exceeds 10000, randomly remove states to reduce the number to 10000
+            self.possible_states = random.sample(self.possible_states, 10000)
 
         # Initialise a dictionary to store move votes     
         votes = {}
@@ -63,7 +67,7 @@ class RandomSensing(Player):
         return None
 
     def handle_move_result(self, requested_move: Optional[chess.Move], taken_move: Optional[chess.Move],
-                           captured_opponent_piece: bool, capture_square: Optional[Square]):
+                        captured_opponent_piece: bool, capture_square: Optional[Square]):
         # Apply the move to the board if it was taken
         if taken_move is not None:
             # Check if a move was requested and if it's legal before applying it
@@ -73,6 +77,9 @@ class RandomSensing(Player):
             else:
                 # If no move was requested (None), do nothing
                 pass
+        # Update possible states based on our move
+        if self.current_state.move_stack:  # Check if move_stack is not empty
+            self.possible_states = [state for state in self.possible_states if state.is_legal(taken_move)]
 
     def handle_game_end(self, winner_color: Optional[Color], win_reason: Optional[WinReason],
                         game_history: GameHistory):
