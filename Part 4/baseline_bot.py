@@ -6,7 +6,7 @@ import chess.engine
 class RandomSensing(Player):
     def __init__(self):
         self.cuurrent_state = chess.Board() # Initialise the current state of the board
-        self.engine = chess.engine.SimpleEngine.popen_uci("stockfish/stockfish.exe") # Open Stockfish engine
+        self.engine = chess.engine.SimpleEngine.popen_uci('/opt/stockfish/stockfish') # Open Stockfish engine
         self.possible_states = [self.cuurrent_state.copy()] # Store the possible states of the board
 
     def handle_game_start(self, color: Color, board: chess.Board, opponent_name: str):

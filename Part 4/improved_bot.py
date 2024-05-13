@@ -29,7 +29,7 @@ class ImprovedBot(Player):
         ]
         
         # Define path to stockfish executable
-        stockfish_path = 'stockfish/stockfish.exe'
+        stockfish_path = '/opt/stockfish/stockfish'
 
         # Initialize the stockfish engine
         self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path)
