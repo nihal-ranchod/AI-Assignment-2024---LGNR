@@ -3,15 +3,14 @@ import random
 import chess
 from reconchess import *
 
-stockfish_path = 'stockfish/stockfish.exe'
-
-class TroutAgent(Player):
+class TroutBot(Player):
     def __init__(self):
         self.board = None
         self.color = None
         self.my_piece_captured_square = None
 
         # Stockfish connection
+        stockfish_path = 'stockfish/stockfish.exe'
         self.engine = chess.engine.SimpleEngine.popen_uci(stockfish_path, setpgrp = True)
 
     def handle_game_start(self, color: chess.Color, board: chess.Board, opponent_name: str):

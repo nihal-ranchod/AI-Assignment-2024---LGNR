@@ -152,7 +152,7 @@ class ImprovedBot(Player):
         
         # If a move was executed, push move onto the board stack
         if taken_move is not None:
-            print(f'In handle move result, taken move:{taken_move} was successful')
+            #print(f'In handle move result, taken move:{taken_move} was successful')
             self.board.push(taken_move)
         else:
             # If no move was executed, push another null move onto the board stack
