@@ -3,7 +3,7 @@ import reconchess as rc
 from random_bot import RandomBot
 from trout_bot import TroutBot
 from baseline_bot import RandomSensing
-from improved_bot import ImprovedBot
+from improved_bot import ImprovedAgent
 
 import sys
 import traceback
@@ -15,7 +15,7 @@ else:
     num_rounds = int(input("Number of rounds: "))
     game_length = float(input("Seconds per game: "))
 
-players = [RandomBot, TroutBot, RandomSensing, ImprovedBot]
+players = [RandomBot, TroutBot, RandomSensing]
 
 # Check the number of players and adjust game rotations accordingly
 if len(players) == 3:
