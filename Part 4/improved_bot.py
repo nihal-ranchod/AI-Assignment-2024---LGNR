@@ -2,7 +2,7 @@ import random
 from reconchess import *
 import chess.engine
 
-class ImprovedBot(Player):
+class ImprovedAgent(Player):
     def __init__(self):
         # Initialize board and color attributes
         self.board = None
